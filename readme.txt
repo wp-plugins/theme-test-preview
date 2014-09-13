@@ -1,4 +1,4 @@
-﻿=== Login Attempt Tracker ===
+﻿=== Test Theme Preview ===
 Tags: theme,switch,different,temporary, preview,test,mode,
 License: GPLv2
 Requires at least: 2.7

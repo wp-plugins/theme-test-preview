@@ -1,6 +1,6 @@
 <?php
   /*
-   Plugin Name: Theme Test preview
+   Plugin Name: Test Theme Preview
    Plugin URI:  http://none
    Description: Preview your site with different theme (only as a temporary test preview). After activation, under your settings, click the plugin button!!!!
    Author: Selnomeria
