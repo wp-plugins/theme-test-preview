@@ -2,7 +2,7 @@
   /*
    Plugin Name: Theme Test preview
    Plugin URI:  http://none
-   Description: Preview your site with different theme (only as a temporary test preview). After activation, under your settings, click the plugin button!!!!
+   Description: Temporarily Preview/Switch your site to different theme (While visitors still see the default theme). After activation, under your settings, click the plugin button!!!!
    Author: Selnomeria
    Version: 1.1
    Author URI: http://none
