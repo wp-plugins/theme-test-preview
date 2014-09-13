@@ -7,7 +7,9 @@
    Version: 1.1
    Author URI: http://none
     */
+// FREE LICENCE. Many thanks to "Theme Test Drive" plugin.
 
+	
 if (!defined('ABSPATH')) {exit;}
 
 
@@ -99,10 +101,62 @@ function test_previewerr( $template = '' )
 }
 
 
+
+
+function CLONE_themedrive_determine_theme2()
+{
+	//check if prohibited for him
+	if (get_option('only_admin_ts_access')!='everyonee')
+	{	
+		if (!current_user_can( 'edit_posts' ))	{	return false;	}
+	}
+
+	$theme = get_option('th_test_name'); if ($theme == '') {  return false;	}
+	$theme_data = wp_get_theme($theme);
+	if (!empty($theme_data)) {
+	  // Don't let people peek at unpublished themes
+	  if (isset($theme_data['Status']) && $theme_data['Status'] != 'publish') {
+		  return false;
+	  }
+	  return $theme_data;
+	}
+
+	// perhaps they are using the theme directory instead of title
+	$themes = wp_get_themes();
+	foreach ($themes as $theme_data) {
+	  // use Stylesheet as it's unique to the theme - Template could point to another theme's templates
+	  if ($theme_data['Stylesheet'] == $theme) {
+		  // Don't let people peek at unpublished themes
+		  if (isset($theme_data['Status']) && $theme_data['Status'] != 'publish') {
+			  return false;
+		  }
+		  return $theme_data;
+	  }
+	}
+
+	return false;
+}
+
+function themedrive_get_template2($template)
+{
+	$theme = CLONE_themedrive_determine_theme2();
+	if ($theme === false) { return $template; }
+	else {return $theme['Template'];}
+}
+
+function themedrive_get_stylesheet2($stylesheet)
+{
+	$theme = CLONE_themedrive_determine_theme2();
+	if ($theme === false) { return $stylesheet; }
+	else { return $theme['Stylesheet']; }
+}
+
+  
+  
 if (previewMODEE)
 {  
-	add_filter( 'template', 'test_previewerr' );
-	add_filter( 'stylesheet', 'test_previewerr' ); // only WP smaller 3*
+	add_filter( 'template', 'themedrive_get_template2' );
+	add_filter( 'stylesheet', 'themedrive_get_stylesheet2' ); // only WP smaller 3*
 	add_filter( 'option_template', 'test_previewerr' );
 	add_filter( 'option_stylesheet', 'test_previewerr' );
 }
