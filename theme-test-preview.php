@@ -1,6 +1,6 @@
 <?php
   /*
-   Plugin Name: Test Theme Preview
+   Plugin Name: Theme Test preview
    Plugin URI:  http://none
    Description: Preview your site with different theme (only as a temporary test preview). After activation, under your settings, click the plugin button!!!!
    Author: Selnomeria
@@ -209,7 +209,7 @@ function previewr_func()
 		echo '</select>';
 	}
 	?>
-	<p> Only Logged in Administrators can visit Testing Environment ? <input type="hidden" name="accessts" value="everyonee" /> <input type="checkbox" name="accessts" value="adminsss" <?php if (get_option('only_admin_ts_access')!='everyonee') {echo 'checked="checked"';}?> />	</p>  <input type="submit" value="Save">  <p>after saving, just visit <a href="<?php echo home_url();?>/?testmode" target="_blank" style="color:red;">yoursite.com/<b>?testmode</b></a>(on the left upper corner you will have previewer ON/OFF)</p>
+	<p> Only Logged in Administrators can visit Testing Environment ? <input type="hidden" name="accessts" value="everyonee" /> <input type="checkbox" name="accessts" value="adminsss" <?php if (get_option('only_admin_ts_access')!='everyonee') {echo 'checked="checked"';}?> />	</p>  <input type="submit" value="Save">  <p>after saving, just visit <a href="<?php echo home_url();?>/?testmode" target="_blank" style="color:red;font-size:1.2em;">yoursite.com/<b style="font-size:1.2em;">?testmode</b></a> (on the left upper corner you will have previewer ON/OFF)</p>
 	</form>
 	</div>
 <?php
