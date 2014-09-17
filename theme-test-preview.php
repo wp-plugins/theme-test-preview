@@ -1,11 +1,10 @@
 <?php
   /*
    Plugin Name: Theme Test preview
-   Plugin URI:  http://none
+   Plugin URI:  http://none.none
    Description: Temporarily Preview/Switch your site to different theme (While visitors still see the default theme). After activation, under your settings, click the plugin button!!!!
    Author: Selnomeria
    Version: 1.1
-   Author URI: http://none
     */
 // FREE LICENCE. Many thanks to "Theme Test Drive" plugin.
 
@@ -14,10 +13,10 @@ if (!defined('ABSPATH')) {exit;}
 
 
 //start redirection
-add_action('wp','start_test_detector');
+add_action('init','start_test_detector');
 function start_test_detector()
 {
-	if (isset($_GET['testmode']))	{header("location: ".home_url().'?turnTestOffOn=on');} 
+	if (substr($_SERVER['REQUEST_URI'],-9)=='/testmode')	{header("location: ".home_url().'/?turnTestOffOn=on') or die('cant redirect_92');} 
 }
 
 
@@ -44,13 +43,12 @@ else										{define('previewMODEE',false);	}
 add_action('wp_footer','show_testONOFF');
 function show_testONOFF()
 {
+	$testing_theme_nameee = get_option('th_test_name');
+
 	//check if prohibited for him
 	if (get_option('only_admin_ts_access')!='everyonee')
 	{	
-		if (!current_user_can( 'edit_posts' ))
-		{
-		return;
-		}
+		if (!current_user_can( 'edit_posts' ))	{	return;	}
 	}
 	
 		if ( !empty($_COOKIE['prw']) || previewMODEE )
@@ -58,7 +56,7 @@ function show_testONOFF()
 			$slcted	=	previewMODEE ? '' : 'selected';
 			echo '<select class="testingCHOOSER" onchange="OnOffTest(this)"
 			style="display:block; z-index:9999; position:fixed;top:30px;width:200px; height:40px;left:1px; padding:4px;color:white; background-color: #C00;border: 5px solid green;" >
-				<option value="on">PREVIEW IS ON</option>
+				<option value="on">PREVIEW IS ON (TESTING THEME NAME: '.$testing_theme_nameee.')</option>
 				<option value="off" '.$slcted.'>PREVIEW OFF</option>
 				<option value="complete_off">PREVIEW OFF and remove this menu</option>
 			</select>
@@ -70,7 +68,7 @@ function show_testONOFF()
 
 function test_previewerr( $template = '' ) 
 {
-	$theme_nameee = get_option('th_test_name');
+	$testing_theme_nameee = get_option('th_test_name');
 	
 	//check if prohibited for him
 	if (get_option('only_admin_ts_access')!='everyonee')
@@ -82,18 +80,18 @@ function test_previewerr( $template = '' )
 	}
 
 	//check the name directly
-	$my_theme = wp_get_theme($theme_nameee);
+	$my_theme = wp_get_theme($testing_theme_nameee);
 	if ( $my_theme->exists() ){return $my_theme;	}
 	
 	//if not got correct name, then try to replace whitespace
-	$my_theme = wp_get_theme(str_replace(' ','',$theme_nameee));
+	$my_theme = wp_get_theme(str_replace(' ','',$testing_theme_nameee));
 	if ( $my_theme->exists() ){	return $my_theme;	}	
 	
 	//if not got again, then maybe it was stylesheet's nickname
 	$my_theme = wp_get_themes();
 	foreach ($my_theme as $theme_data) 
 	{
-	if ($theme_data == $theme_nameee) {	return $theme_data;	}
+	if ($theme_data == $testing_theme_nameee) {	return $theme_data;	}
 	}
 
 	//else
@@ -185,7 +183,7 @@ function previewr_func()
 	?> 
 
 	<div class="choose_theme"><br/><br/>
-	<h3> Keep in mind, if you will have problems, just deactivate/delete this plugin. This plugin is like "Theme Test drive" , "User Theme" and "Theme Switch and Preview"</h3><br/><br/>
+	<h3> Keep in mind, if you will have problems, just deactivate/delete this plugin. This plugin is like "Theme Test drive" , "User Theme", "Theme Switch and Preview" , "page theme" and etc..</h3><br/><br/>
 	<h2> Choose the desired theme for Test mode</h2><p>(you should have at least 2 themes installed already)</p>
 	<form action="" method="POST">
 	<?php
@@ -209,7 +207,7 @@ function previewr_func()
 		echo '</select>';
 	}
 	?>
-	<p> Only Logged in Administrators can visit Testing Environment ? <input type="hidden" name="accessts" value="everyonee" /> <input type="checkbox" name="accessts" value="adminsss" <?php if (get_option('only_admin_ts_access')!='everyonee') {echo 'checked="checked"';}?> />	</p>  <input type="submit" value="Save">  <p>after saving, just visit <a href="<?php echo home_url();?>/?testmode" target="_blank" style="color:red;font-size:1.2em;">yoursite.com/<b style="font-size:1.2em;">?testmode</b></a> (on the left upper corner you will have previewer ON/OFF)</p>
+	<p> Only Logged in Administrators can visit Testing Environment ? <input type="hidden" name="accessts" value="everyonee" /> <input type="checkbox" name="accessts" value="adminsss" <?php if (get_option('only_admin_ts_access')!='everyonee') {echo 'checked="checked"';}?> />	</p>  <input type="submit" value="Save">  <p>after saving, just visit <a href="<?php echo home_url();?>/testmode" target="_blank" style="color:red;font-size:1.2em;">yoursite.com/<b style="font-size:1.2em;">testmode</b></a> (on the left upper corner you will have previewer ON/OFF)</p>
 	</form>
 	</div>
 <?php
