@@ -1,11 +1,10 @@
 <?php
-  /*
-   Plugin Name: Theme Test preview
-   Plugin URI:  http://none.none
-   Description: Temporarily Preview/Switch your site to different theme (While visitors still see the default theme). After activation, under your settings, click the plugin button!!!!
-   Author: Selnomeria
-   Version: 1.1
-    */
+/*
+Plugin Name: Theme Test preview
+Description: Temporarily Preview/Switch your site to different theme (While visitors still see the default theme). After activation, under your settings, click the plugin button!!!!
+contributors: selnomeria
+Version: 1.1
+*/
 // FREE LICENCE. Many thanks to "Theme Test Drive" plugin.
 
 	
