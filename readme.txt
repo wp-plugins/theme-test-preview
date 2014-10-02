@@ -1,4 +1,5 @@
 ﻿=== Test Theme Preview ===
+contributors: selnomeria
 Tags: theme,switch,different,temporary, preview,test,mode,
 License: GPLv2
 Requires at least: 2.7
