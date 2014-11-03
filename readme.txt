@@ -6,14 +6,11 @@ Requires at least: 2.7
 Tested up to: 3.8
 Stable tag: 1.1
 
-Preview your site with different theme (only as a temporary test preview). After activation, under your settings, click the plugin button!!!!
-
-IN CASE OF PROBLEMS, JUST DEACTIVATE/DELETE the plugin.
+Preview your site with different theme (only as a temporary test preview). After activation, Settings>Test themes (IN CASE OF PROBLEMS, JUST DEACTIVATE/DELETE the plugin.)
 
 
 == Description ==
-
-After plugin activation, go to  "Dashboard"->"Settings"->"Theme Tester".
+After activation, Settings>Test themes. IN CASE OF PROBLEMS, JUST REMOVE the plugin. (OTHER MUST-HAVE PLUGINS : http://codesphpjs.blogspot.com/2014/10/must-have-wordpress-plugins.html )
 
 
 = Usage =

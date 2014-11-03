@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Theme Test preview
-Description: Temporarily Preview/Switch your site to different theme (While visitors still see the default theme). After activation, under your settings, click the plugin button!!!!
+Description: Temporarily Preview/Switch your site to different theme (While visitors still see the default theme). After activation, click SETTINGS>Test themes!!! (OTHER MUST-HAVE PLUGINS : http://codesphpjs.blogspot.com/2014/10/must-have-wordpress-plugins.html ) IF PROBLEMS, just REMOVE the plugin.
 contributors: selnomeria
 Version: 1.1
 */
