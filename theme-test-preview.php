@@ -3,212 +3,146 @@
 Plugin Name: Theme Test preview
 Description: Temporarily Preview/Switch your site to different theme (While visitors still see the default theme). After activation, click SETTINGS>Test themes!!! (OTHER MUST-HAVE PLUGINS : http://codesphpjs.blogspot.com/2014/10/must-have-wordpress-plugins.html ) IF PROBLEMS, just REMOVE the plugin.
 contributors: selnomeria
-Version: 1.1
-*/
-// FREE LICENCE. Many thanks to "Theme Test Drive" plugin.
+Version: 1.2
+*/ // FREE LICENCE. Many thanks to "Theme Test Drive" plugin.
 
-	
-if (!defined('ABSPATH')) {exit;}
-
-
-//start redirection
-add_action('init','start_test_detector');
-function start_test_detector()
-{
-	if (substr($_SERVER['REQUEST_URI'],-9)=='/testmode')	{header("location: ".home_url().'/?turnTestOffOn=on') or die('cant redirect_92');} 
-}
+define('TTPRW_ACTIVE_THEMFOLD',esc_attr(wp_get_theme()->template));     //get_stylesheet()
+define('TTPRW_ACTIVE_THEMNAME',esc_attr(wp_get_theme()->name));  //wp_get_theme()->template
 
 
+	function TTPRW_detection(){
+		if (substr($_SERVER['REQUEST_URI'],-9)=='/testmode')	{header("location: ".home_url().'/?turnTestOffOn='.TTPRW_ACTIVE_THEMFOLD) or die(__FILE__);} 
+	} TTPRW_detection(); //add_action('plugins_loaded','TTPRW_detection');     <-- this doesnt work.. i dont know why..
 
-if 	(!empty($_GET['turnTestOffOn']))
-{
-	if ($_GET['turnTestOffOn'] == 'on')
-	{
-		define('previewMODEE',true);setcookie('prw','yes',time()+1000000,'/');	header("location: ".home_url()) or die(__FILE__);
-	}
-	elseif($_GET['turnTestOffOn'] == 'off')
-	{
-		define('previewMODEE',false);setcookie('prw','no',time()+1000000,'/');	header("location: ".home_url()) or die(__FILE__);
-	}
-	elseif($_GET['turnTestOffOn'] == 'complete_off')
-	{
-		define('previewMODEE',false);setcookie('prw','no',time()-9999999,'/');	header("location: ".home_url()) or die(__FILE__);
-	}
-}
-elseif	('yes'	== $_COOKIE['prw'] )		{define('previewMODEE',true);	}
-elseif	('no'	== $_COOKIE['prw'] )		{define('previewMODEE',false);	}
-else										{define('previewMODEE',false);	}
-
-add_action('wp_footer','show_testONOFF');
-function show_testONOFF()
-{
-	$testing_theme_nameee = get_option('th_test_name');
-
-	//check if prohibited for him
-	if (get_option('only_admin_ts_access')!='everyonee')
-	{	
-		if (!current_user_can( 'edit_posts' ))	{	return;	}
+	function TTPRW_permisionn(){
+		if (get_option('TTPRW_environment_access')!='everyonee')	{	if (!current_user_can( 'edit_posts' ))	{return false;}  return true;}
 	}
 	
-		if ( !empty($_COOKIE['prw']) || previewMODEE )
-		{
-			$slcted	=	previewMODEE ? '' : 'selected';
-			echo '<select class="testingCHOOSER" onchange="OnOffTest(this)"
-			style="display:block; z-index:9999; position:fixed;top:30px;width:200px; height:40px;left:1px; padding:4px;color:white; background-color: #C00;border: 5px solid green;" >
-				<option value="on">PREVIEW IS ON (TESTING THEME NAME: '.$testing_theme_nameee.')</option>
-				<option value="off" '.$slcted.'>PREVIEW OFF</option>
-				<option value="complete_off">PREVIEW OFF and remove this menu</option>
-			</select>
-			<script type="text/javascript">function OnOffTest(elm){window.location="'.home_url().'/?turnTestOffOn=" + elm.value;}</script>';
+add_action('plugins_loaded','TTPRW_change_func');function TTPRW_change_func(){
+	if (TTPRW_permisionn()){
+		//if change detected
+		if 	($t_request = $_GET['turnTestOffOn']){
+			if($t_request == 'complete_off')	{setcookie('tPREW','canceled',	time()+9999999,'/');  $GLOBALS['previewMODEE']=false;		}
+			else								{setcookie('tPREW',$t_request,	time()+9999999,'/');  $GLOBALS['previewMODEE']=$t_request;	}
+			header("location: ".home_url()) or die(__FILE__);
 		}
-}
-
-
-
-function test_previewerr( $template = '' ) 
-{
-	$testing_theme_nameee = get_option('th_test_name');
-	
-	//check if prohibited for him
-	if (get_option('only_admin_ts_access')!='everyonee')
-	{	
-		if (!current_user_can( 'edit_posts' ))
-		{
-		return $template;
+		//if change NOT detected
+		elseif ($cookieee_set = $_COOKIE['tPREW']){
+			if ($cookieee_set == 'canceled') {$GLOBALS['previewMODEE']=false;}
+			else							 {$GLOBALS['previewMODEE']=$_COOKIE['tPREW'];}
 		}
 	}
-
-	//check the name directly
-	$my_theme = wp_get_theme($testing_theme_nameee);
-	if ( $my_theme->exists() ){return $my_theme;	}
-	
-	//if not got correct name, then try to replace whitespace
-	$my_theme = wp_get_theme(str_replace(' ','',$testing_theme_nameee));
-	if ( $my_theme->exists() ){	return $my_theme;	}	
-	
-	//if not got again, then maybe it was stylesheet's nickname
-	$my_theme = wp_get_themes();
-	foreach ($my_theme as $theme_data) 
-	{
-	if ($theme_data == $testing_theme_nameee) {	return $theme_data;	}
-	}
-
-	//else
-	return $template;
 }
-
-
-
-
-function CLONE_themedrive_determine_theme2()
-{
-	//check if prohibited for him
-	if (get_option('only_admin_ts_access')!='everyonee')
-	{	
-		if (!current_user_can( 'edit_posts' ))	{	return false;	}
+add_action('plugins_loaded','TTD_filters3');  function TTD_filters3 () {
+	if ($GLOBALS['previewMODEE']){  
+ 		add_filter('template', 'themedrive_get_template3');
+ 		add_filter('stylesheet', 'themedrive_get_stylesheet3');
+		add_filter( 'option_template', 'themedrive_determine_theme3' );
+		add_filter( 'option_stylesheet', 'themedrive_determine_theme3' );
 	}
+}
+ 
+ 
 
-	$theme = get_option('th_test_name'); if ($theme == '') {  return false;	}
-	$theme_data = wp_get_theme($theme);
-	if (!empty($theme_data)) {
+
+
+
+function themedrive_determine_theme3()
+{
+  $theme_name=$GLOBALS['previewMODEE'];
+  if (isset($theme_name)) { $theme = $theme_name; }
+  
+  $theme_data = wp_get_theme($theme);
+  if (!empty($theme_data)) {
 	  // Don't let people peek at unpublished themes
-	  if (isset($theme_data['Status']) && $theme_data['Status'] != 'publish') {
-		  return false;
-	  }
+	  if (isset($theme_data['Status']) && $theme_data['Status'] != 'publish') { return false; }
 	  return $theme_data;
-	}
-
-	// perhaps they are using the theme directory instead of title
-	$themes = wp_get_themes();
-	foreach ($themes as $theme_data) {
+  }
+  
+  // perhaps they are using the theme directory instead of title
+  $themes = wp_get_themes();
+  
+  foreach ($themes as $theme_data) {
 	  // use Stylesheet as it's unique to the theme - Template could point to another theme's templates
 	  if ($theme_data['Stylesheet'] == $theme) {
 		  // Don't let people peek at unpublished themes
-		  if (isset($theme_data['Status']) && $theme_data['Status'] != 'publish') {
-			  return false;
-		  }
+		  if (isset($theme_data['Status']) && $theme_data['Status'] != 'publish') {   return false;    }
 		  return $theme_data;
 	  }
+  }
+  return false;
+}
+
+function themedrive_get_template3($template)  {
+  $theme = themedrive_determine_theme3();
+  if ($theme === false) {return $template;}
+  return $theme['Template'];
+}
+
+function themedrive_get_stylesheet3($stylesheet)  {
+  $theme = themedrive_determine_theme3();
+  if ($theme === false) { return $stylesheet;  }
+  return $theme['Stylesheet'];
+}
+
+  
+
+
+
+
+
+
+
+
+add_action('wp_footer','TTPRW_show_testONOFF');function TTPRW_show_testONOFF(){
+	if ($GLOBALS['previewMODEE']!=false) {
+		echo '<select class="testingCHOOSER" onchange="OnOffTest(this)"
+		style="display:block; z-index:9999; position:fixed;top:30px;width:200px; height:40px;left:1px; padding:4px;color:white; background-color: #C00;border: 5px solid green;" >';
+		
+				$themes = wp_get_themes();
+				if (count($themes) > 1) {
+					$theme_names = array_keys($themes);
+					natcasesort($theme_names);
+					foreach ($theme_names as $theme_name){			
+						$tName1=$themes[$theme_name]['Template'];	
+						$tName2=$themes[$theme_name]['Name'];
+						$tName3=$theme_name;
+						if ('publish' == $themes[$theme_name]['Status'] ) {
+							$selectdd =  ($GLOBALS['previewMODEE'] == $tName1)	? ' selected="selected"'	:	'';
+							echo '<option value="' . esc_attr( $tName3 ).'" '. $selectdd .'>'. $tName2.'</option>'."\n";
+						}
+					}
+				}else {echo '<option value="x">NO ADDITIONAL THEMES INSTALLED</option>';}
+				echo '<option value="complete_off">--EXIT PREVIEW MODE--</option>';
+				
+		echo '</select>
+		<script type="text/javascript">function OnOffTest(elm){window.location="'.home_url().'/?turnTestOffOn=" + elm.value;}</script>';
 	}
-
-	return false;
 }
-
-function themedrive_get_template2($template)
-{
-	$theme = CLONE_themedrive_determine_theme2();
-	if ($theme === false) { return $template; }
-	else {return $theme['Template'];}
-}
-
-function themedrive_get_stylesheet2($stylesheet)
-{
-	$theme = CLONE_themedrive_determine_theme2();
-	if ($theme === false) { return $stylesheet; }
-	else { return $theme['Stylesheet']; }
-}
-
-  
-  
-if (previewMODEE)
-{  
-	add_filter( 'template', 'themedrive_get_template2' );
-	add_filter( 'stylesheet', 'themedrive_get_stylesheet2' ); // only WP smaller 3*
-	add_filter( 'option_template', 'test_previewerr' );
-	add_filter( 'option_stylesheet', 'test_previewerr' );
-}
-
 
 
 
 
 
 // ===================Call the ADMIN MENU=====================
-add_action('admin_menu', 'prev_menuuu_link');
-function prev_menuuu_link() 
-{
-	add_submenu_page( 'options-general.php', 'Theme TESTER', 'Theme TESTER', 'manage_options', 'theme-test-viewer', 'previewr_func' ); 
-}
-
-
-function previewr_func() 
-{
-	if (!empty($_POST['td_themes']))
-	{
-		update_option('th_test_name', $_POST['td_themes']);
-		update_option('only_admin_ts_access', $_POST['accessts']);
+add_action('admin_menu', 'prev_menuuu_link');function prev_menuuu_link() {add_submenu_page( 'options-general.php', 'Theme Test Preview', 'Theme Test Preview', 'manage_options', 'theme-test-preview', 'previewr_func' ); }function previewr_func(){
+	if (!empty($_POST['accessts']))	{
+		update_option('TTPRW_environment_access', $_POST['accessts']);
 		echo '<br/><h3 style="color:red;"> Testing Theme is Set </h3><br/>';
 	}
 	?> 
 
 	<div class="choose_theme"><br/><br/>
-	<h3> Keep in mind, if you will have problems, just deactivate/delete this plugin. This plugin is like "Theme Test drive" , "User Theme", "Theme Switch and Preview" , "page theme" and etc..</h3><br/><br/>
-	<h2> Choose the desired theme for Test mode</h2><p>(you should have at least 2 themes installed already)</p>
+	<b>Keep in mind, if you will have problems, just deactivate/delete this plugin. (There exist other relative plugins "Theme Test drive" , "User Theme", "Theme Switch and Preview" , "page theme" and etc..)</b><br/><br/><br/>
 	<form action="" method="POST">
-	<?php
-	$default_theme = wp_get_theme();
-	$themes = wp_get_themes();
-	if (count($themes) > 1) 
-	{
-		$theme_names = array_keys($themes);
-		natcasesort($theme_names);
-		echo '<select name="td_themes">';
-		foreach ($theme_names as $theme_name) 
-		{
-			// Skip unpublished themes.
-			if (isset($themes[$theme_name]['Status']) && $themes[$theme_name]['Status'] != 'publish') {  continue;	}
-
-			if ((get_option('th_test_name') == $theme_name) || ((get_option('th_test_name') == '') && ($theme_name == $default_theme)))			 { $selectdd=' selected="selected"'; } 
-			else						{ $selectdd='';}
-			
-			echo '<option value="' . esc_attr( $theme_name ).'" '. $selectdd .'>'. $themes[$theme_name]['Name'].'</option>'."\n";
-		}
-		echo '</select>';
-	}
-	?>
-	<p> Only Logged in Administrators can visit Testing Environment ? <input type="hidden" name="accessts" value="everyonee" /> <input type="checkbox" name="accessts" value="adminsss" <?php if (get_option('only_admin_ts_access')!='everyonee') {echo 'checked="checked"';}?> />	</p>  <input type="submit" value="Save">  <p>after saving, just visit <a href="<?php echo home_url();?>/testmode" target="_blank" style="color:red;font-size:1.2em;">yoursite.com/<b style="font-size:1.2em;">testmode</b></a> (on the left upper corner you will have previewer ON/OFF)</p>
+	<p> Only Logged in Administrators can see Testing Environment ? <input type="hidden" name="accessts" value="everyonee" /> <input type="checkbox" name="accessts" value="adminsss" <?php if (get_option('TTPRW_environment_access')!='everyonee') {echo 'checked="checked"';}?> />	</p>  <input type="submit" value="Save">  <p>after saving, just visit <a href="<?php echo home_url();?>/testmode" target="_blank" style="color:red;font-size:1.2em;">yoursite.com/<b style="font-size:1.2em;">testmode</b></a> (and on the left upper corner you will see a menu)</p>
 	</form>
 	</div>
 <?php
 } 
+
+
+add_action( 'activated_plugin', 'TTPRW_activation_redirect' ); function TTPRW_activation_redirect( $plugin ) {
+    if( $plugin == plugin_basename( __FILE__ ) ) { exit( wp_redirect( admin_url( 'options-general.php?page=theme-test-preview' ) ) ); }
+}
 ?>
