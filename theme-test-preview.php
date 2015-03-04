@@ -128,7 +128,7 @@ add_action('wp_footer','TTPRW_show_testONOFF');function TTPRW_show_testONOFF(){
 add_action('admin_menu', 'prev_menuuu_link');function prev_menuuu_link() {add_submenu_page( 'options-general.php', 'Theme Test Preview', 'Theme Test Preview', 'manage_options', 'theme-test-preview', 'previewr_func' ); }function previewr_func(){
 	if (!empty($_POST['accessts']))	{
 		update_option('TTPRW_environment_access', $_POST['accessts']);
-		echo '<br/><h3 style="color:red;"> Testing Theme is Set </h3><br/>';
+		echo '<br/><h3 style="color:red;">Settings Saved!</h3><br/>';
 	}
 	?> 
 
