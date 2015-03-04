@@ -15,7 +15,8 @@ define('TTPRW_ACTIVE_THEMNAME',esc_attr(wp_get_theme()->name));  //wp_get_theme(
 	} TTPRW_detection(); //add_action('plugins_loaded','TTPRW_detection');     <-- this doesnt work.. i dont know why..
 
 	function TTPRW_permisionn(){
-		if (get_option('TTPRW_environment_access')!='everyonee')	{	if (!current_user_can( 'edit_posts' ))	{return false;}  return true;}
+		if (get_option('TTPRW_environment_access')=='adminsss')	{if (current_user_can( 'edit_posts' )){return true;} else {return false;}}
+		else {return true;}
 	}
 	
 add_action('plugins_loaded','TTPRW_change_func');function TTPRW_change_func(){
@@ -128,14 +129,14 @@ add_action('wp_footer','TTPRW_show_testONOFF');function TTPRW_show_testONOFF(){
 add_action('admin_menu', 'prev_menuuu_link');function prev_menuuu_link() {add_submenu_page( 'options-general.php', 'Theme Test Preview', 'Theme Test Preview', 'manage_options', 'theme-test-preview', 'previewr_func' ); }function previewr_func(){
 	if (!empty($_POST['accessts']))	{
 		update_option('TTPRW_environment_access', $_POST['accessts']);
-		echo '<br/><h3 style="color:red;">Settings Saved!</h3><br/>';
+		echo '<br/><h3 style="color:red;"> Testing Theme is Set </h3><br/>';
 	}
 	?> 
 
 	<div class="choose_theme"><br/><br/>
 	<b>Keep in mind, if you will have problems, just deactivate/delete this plugin. (There exist other relative plugins "Theme Test drive" , "User Theme", "Theme Switch and Preview" , "page theme" and etc..)</b><br/><br/><br/>
 	<form action="" method="POST">
-	<p> Only Logged in Administrators can see Testing Environment ? <input type="hidden" name="accessts" value="everyonee" /> <input type="checkbox" name="accessts" value="adminsss" <?php if (get_option('TTPRW_environment_access')!='everyonee') {echo 'checked="checked"';}?> />	</p>  <input type="submit" value="Save">  <p>after saving, just visit <a href="<?php echo home_url();?>/testmode" target="_blank" style="color:red;font-size:1.2em;">yoursite.com/<b style="font-size:1.2em;">testmode</b></a> (and on the left upper corner you will see a menu)</p>
+	<p> Only Logged in Administrators can see Testing Environment ? <input type="hidden" name="accessts" value="everyonee" /> <input type="checkbox" name="accessts" value="adminsss" <?php if (get_option('TTPRW_environment_access')=='adminsss') {echo 'checked="checked"';}?> />	</p>  <input type="submit" value="Save">  <p>after saving, just visit <a href="<?php echo home_url();?>/testmode" target="_blank" style="color:red;font-size:1.2em;">yoursite.com/<b style="font-size:1.2em;">testmode</b></a> (and on the left upper corner you will see a menu)</p>
 	</form>
 	</div>
 <?php
@@ -144,5 +145,6 @@ add_action('admin_menu', 'prev_menuuu_link');function prev_menuuu_link() {add_su
 
 add_action( 'activated_plugin', 'TTPRW_activation_redirect' ); function TTPRW_activation_redirect( $plugin ) {
     if( $plugin == plugin_basename( __FILE__ ) ) { exit( wp_redirect( admin_url( 'options-general.php?page=theme-test-preview' ) ) ); }
+	update_option('TTPRW_environment_access','adminsss');
 }
 ?>
