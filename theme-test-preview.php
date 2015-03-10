@@ -6,18 +6,18 @@ contributors: selnomeria
 Version: 1.2
 */ // FREE LICENCE. Many thanks to "Theme Test Drive" plugin.
 
+  die('aa'.WP_THEME_DIR);
 define('TTPRW_ACTIVE_THEMFOLD',esc_attr(wp_get_theme()->template));     //get_stylesheet()
 define('TTPRW_ACTIVE_THEMNAME',esc_attr(wp_get_theme()->name));  //wp_get_theme()->template
-
-
-	function TTPRW_detection(){
+function TTPRW_detection(){
 		if (substr($_SERVER['REQUEST_URI'],-9)=='/testmode')	{header("location: ".home_url().'/?turnTestOffOn='.TTPRW_ACTIVE_THEMFOLD) or die(__FILE__);} 
 	} TTPRW_detection(); //add_action('plugins_loaded','TTPRW_detection');     <-- this doesnt work.. i dont know why..
 
-	function TTPRW_permisionn(){
+function TTPRW_permisionn(){
 		if (get_option('TTPRW_environment_access')=='adminsss')	{if (current_user_can( 'edit_posts' )){return true;} else {return false;}}
 		else {return true;}
 	}
+	
 	
 add_action('plugins_loaded','TTPRW_change_func');function TTPRW_change_func(){
 	if (TTPRW_permisionn()){
@@ -34,29 +34,27 @@ add_action('plugins_loaded','TTPRW_change_func');function TTPRW_change_func(){
 		}
 	}
 }
+
 add_action('plugins_loaded','TTD_filters3');  function TTD_filters3 () {
 	if ($GLOBALS['previewMODEE']){  
  		add_filter('template', 'themedrive_get_template3');
  		add_filter('stylesheet', 'themedrive_get_stylesheet3');
-		add_filter( 'option_template', 'themedrive_determine_theme3' );
-		add_filter( 'option_stylesheet', 'themedrive_determine_theme3' );
+		//my addition:
+		add_filter( 'option_template', 'TTPRW_determine' );
+		add_filter( 'option_stylesheet', 'TTPRW_determine' );
 	}
 }
  
- 
+function themedrive_get_template3($template)	{$theme=TTPRW_determine(); if($theme === false) {return $template;}	 return $theme['Template'];}
+function themedrive_get_stylesheet3($stylesheet){$theme=TTPRW_determine(); if($theme === false) {return $stylesheet;} return $theme['Stylesheet'];}
 
-
-
-
-function themedrive_determine_theme3()
-{
+function TTPRW_determine(){
   $theme_name=$GLOBALS['previewMODEE'];
   if (isset($theme_name)) { $theme = $theme_name; }
-  
   $theme_data = wp_get_theme($theme);
   if (!empty($theme_data)) {
 	  // Don't let people peek at unpublished themes
-	  if (isset($theme_data['Status']) && $theme_data['Status'] != 'publish') { return false; }
+	  if (isset($theme_data['Status']) && $theme_data['Status'] != 'publish') {  return false; }
 	  return $theme_data;
   }
   
@@ -74,19 +72,6 @@ function themedrive_determine_theme3()
   return false;
 }
 
-function themedrive_get_template3($template)  {
-  $theme = themedrive_determine_theme3();
-  if ($theme === false) {return $template;}
-  return $theme['Template'];
-}
-
-function themedrive_get_stylesheet3($stylesheet)  {
-  $theme = themedrive_determine_theme3();
-  if ($theme === false) { return $stylesheet;  }
-  return $theme['Stylesheet'];
-}
-
-  
 
 
 
@@ -94,6 +79,25 @@ function themedrive_get_stylesheet3($stylesheet)  {
 
 
 
+
+
+
+// ===================Call the ADMIN MENU=====================
+add_action('admin_menu', 'prev_menuuu_link');function prev_menuuu_link() {add_submenu_page( 'options-general.php', 'Theme Test Preview', 'Theme Test Preview', 'manage_options', 'theme-test-preview', 'previewr_func' ); }function previewr_func(){
+	if (!empty($_POST['accessts']))	{
+		update_option('TTPRW_environment_access', $_POST['accessts']);
+		echo '<br/><h3 style="color:red;"> Testing Theme is Set </h3><br/>';
+	}
+	?> 
+
+	<div class="choose_theme"><br/><br/>
+	<b>Keep in mind, if you will have problems, just deactivate/delete this plugin. (There exist other relative plugins "Theme Test drive" , "User Theme", "Theme Switch and Preview" , "page theme" and etc..)</b><br/><br/><br/>
+	<form action="" method="POST">
+	<p> Only Logged in Administrators can see Testing Environment ? <input type="hidden" name="accessts" value="everyonee" /> <input type="checkbox" name="accessts" value="adminsss" <?php if (get_option('TTPRW_environment_access')=='adminsss') {echo 'checked="checked"';}?> />	</p>  <input type="submit" value="Save">  <p>after saving, just visit <a href="<?php echo home_url();?>/testmode" target="_blank" style="color:red;font-size:1.2em;">yoursite.com/<b style="font-size:1.2em;">testmode</b></a> (and on the left upper corner you will see a menu)</p>
+	</form>
+	</div>
+<?php
+} 
 
 add_action('wp_footer','TTPRW_show_testONOFF');function TTPRW_show_testONOFF(){
 	if ($GLOBALS['previewMODEE']!=false) {
@@ -120,27 +124,6 @@ add_action('wp_footer','TTPRW_show_testONOFF');function TTPRW_show_testONOFF(){
 		<script type="text/javascript">function OnOffTest(elm){window.location="'.home_url().'/?turnTestOffOn=" + elm.value;}</script>';
 	}
 }
-
-
-
-
-
-// ===================Call the ADMIN MENU=====================
-add_action('admin_menu', 'prev_menuuu_link');function prev_menuuu_link() {add_submenu_page( 'options-general.php', 'Theme Test Preview', 'Theme Test Preview', 'manage_options', 'theme-test-preview', 'previewr_func' ); }function previewr_func(){
-	if (!empty($_POST['accessts']))	{
-		update_option('TTPRW_environment_access', $_POST['accessts']);
-		echo '<br/><h3 style="color:red;"> Testing Theme is Set </h3><br/>';
-	}
-	?> 
-
-	<div class="choose_theme"><br/><br/>
-	<b>Keep in mind, if you will have problems, just deactivate/delete this plugin. (There exist other relative plugins "Theme Test drive" , "User Theme", "Theme Switch and Preview" , "page theme" and etc..)</b><br/><br/><br/>
-	<form action="" method="POST">
-	<p> Only Logged in Administrators can see Testing Environment ? <input type="hidden" name="accessts" value="everyonee" /> <input type="checkbox" name="accessts" value="adminsss" <?php if (get_option('TTPRW_environment_access')=='adminsss') {echo 'checked="checked"';}?> />	</p>  <input type="submit" value="Save">  <p>after saving, just visit <a href="<?php echo home_url();?>/testmode" target="_blank" style="color:red;font-size:1.2em;">yoursite.com/<b style="font-size:1.2em;">testmode</b></a> (and on the left upper corner you will see a menu)</p>
-	</form>
-	</div>
-<?php
-} 
 
 
 add_action( 'activated_plugin', 'TTPRW_activation_redirect' ); function TTPRW_activation_redirect( $plugin ) {
