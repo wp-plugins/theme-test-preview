@@ -4,11 +4,21 @@ Plugin Name: Theme Test preview
 Description: Temporarily Preview/Switch your site to different theme (While visitors still see the default theme). After activation, click SETTINGS>Test themes!!! (OTHER MUST-HAVE PLUGINS : http://codesphpjs.blogspot.com/2014/10/must-have-wordpress-plugins.html ) IF PROBLEMS, just REMOVE the plugin.
 contributors: selnomeria
 Version: 1.2
-*/ // FREE LICENCE. Many thanks to "Theme Test Drive" plugin.
+*/ //FREE LICENCE. Many thanks to "Theme Test Drive" plugin.
 
-  die('aa'.WP_THEME_DIR);
-define('TTPRW_ACTIVE_THEMFOLD',esc_attr(wp_get_theme()->template));     //get_stylesheet()
+
+define('TTPRW_ACTIVE_THEMFOLD',esc_attr(wp_get_theme()->template));  //get_stylesheet()
 define('TTPRW_ACTIVE_THEMNAME',esc_attr(wp_get_theme()->name));  //wp_get_theme()->template
+
+register_deactivation_hook( __FILE__,	'TTPRW_activation');	function TTPRW_activation()		{
+	//
+}
+register_activation_hook( __FILE__,		'TTPRW_deactivation');	function TTPRW_deactivation()	{
+	setcookie('tPREW_t','deleted',	time()-9999999,'/');
+}
+	
+	
+	
 function TTPRW_detection(){
 		if (substr($_SERVER['REQUEST_URI'],-9)=='/testmode')	{header("location: ".home_url().'/?turnTestOffOn='.TTPRW_ACTIVE_THEMFOLD) or die(__FILE__);} 
 	} TTPRW_detection(); //add_action('plugins_loaded','TTPRW_detection');     <-- this doesnt work.. i dont know why..
@@ -18,25 +28,21 @@ function TTPRW_permisionn(){
 		else {return true;}
 	}
 	
-	
+
 add_action('plugins_loaded','TTPRW_change_func');function TTPRW_change_func(){
 	if (TTPRW_permisionn()){
-		//if change detected
-		if 	($t_request = $_GET['turnTestOffOn']){
-			if($t_request == 'complete_off')	{setcookie('tPREW','canceled',	time()+9999999,'/');  $GLOBALS['previewMODEE']=false;		}
-			else								{setcookie('tPREW',$t_request,	time()+9999999,'/');  $GLOBALS['previewMODEE']=$t_request;	}
+		if 	(isset($_GET['turnTestOffOn'])) {			//change was detected
+			$GLOBALS['previewMODEE']=$_GET['turnTestOffOn'];	setcookie('tPREW_t',$_GET['turnTestOffOn'],	time()+9999999,'/');
 			header("location: ".home_url()) or die(__FILE__);
 		}
-		//if change NOT detected
-		elseif ($cookieee_set = $_COOKIE['tPREW']){
-			if ($cookieee_set == 'canceled') {$GLOBALS['previewMODEE']=false;}
-			else							 {$GLOBALS['previewMODEE']=$_COOKIE['tPREW'];}
+		elseif ($cookieee_set = $_COOKIE['tPREW_t']){ 		//change was NOT detected
+			$GLOBALS['previewMODEE']=$_COOKIE['tPREW_t'];
 		}
 	}
 }
 
 add_action('plugins_loaded','TTD_filters3');  function TTD_filters3 () {
-	if ($GLOBALS['previewMODEE']){  
+	if (!empty($GLOBALS['previewMODEE'])){  
  		add_filter('template', 'themedrive_get_template3');
  		add_filter('stylesheet', 'themedrive_get_stylesheet3');
 		//my addition:
@@ -45,30 +51,20 @@ add_action('plugins_loaded','TTD_filters3');  function TTD_filters3 () {
 	}
 }
  
-function themedrive_get_template3($template)	{$theme=TTPRW_determine(); if($theme === false) {return $template;}	 return $theme['Template'];}
-function themedrive_get_stylesheet3($stylesheet){$theme=TTPRW_determine(); if($theme === false) {return $stylesheet;} return $theme['Stylesheet'];}
+function themedrive_get_template3($template)	{$theme=TTPRW_determine(); if($theme === false) {return $template;}		return $theme['Template'];}
+function themedrive_get_stylesheet3($stylesheet){$theme=TTPRW_determine(); if($theme === false) {return $stylesheet;}	return $theme['Stylesheet'];}
 
 function TTPRW_determine(){
-  $theme_name=$GLOBALS['previewMODEE'];
-  if (isset($theme_name)) { $theme = $theme_name; }
-  $theme_data = wp_get_theme($theme);
-  if (!empty($theme_data)) {
-	  // Don't let people peek at unpublished themes
-	  if (isset($theme_data['Status']) && $theme_data['Status'] != 'publish') {  return false; }
-	  return $theme_data;
-  }
-  
-  // perhaps they are using the theme directory instead of title
+  $theme = $GLOBALS['previewMODEE'];	if (empty($theme) || (!file_exists(get_theme_root().'/'.$theme))  ) {return false;}
+  //if chosen theme name
+  $theme_data = wp_get_theme($theme);	if ('publish' == $theme_data['Status']) {return $theme_data;} else { return false;}
+  //if chosen theme title
   $themes = wp_get_themes();
-  
-  foreach ($themes as $theme_data) {
-	  // use Stylesheet as it's unique to the theme - Template could point to another theme's templates
-	  if ($theme_data['Stylesheet'] == $theme) {
-		  // Don't let people peek at unpublished themes
-		  if (isset($theme_data['Status']) && $theme_data['Status'] != 'publish') {   return false;    }
-		  return $theme_data;
-	  }
-  }
+			foreach ($themes as $theme_data) {
+				if ($theme == $theme_data['Stylesheet'] ) {	  //Stylesheet is unique to the theme (Template may point to other theme's template)
+					if ('publish' == $theme_data['Status']) {return $theme_data;} else { return false;}	  
+				}
+			}
   return false;
 }
 
@@ -82,7 +78,7 @@ function TTPRW_determine(){
 
 
 
-// ===================Call the ADMIN MENU=====================
+// ==========================================        Call the ADMIN MENU        ================================
 add_action('admin_menu', 'prev_menuuu_link');function prev_menuuu_link() {add_submenu_page( 'options-general.php', 'Theme Test Preview', 'Theme Test Preview', 'manage_options', 'theme-test-preview', 'previewr_func' ); }function previewr_func(){
 	if (!empty($_POST['accessts']))	{
 		update_option('TTPRW_environment_access', $_POST['accessts']);
@@ -100,7 +96,7 @@ add_action('admin_menu', 'prev_menuuu_link');function prev_menuuu_link() {add_su
 } 
 
 add_action('wp_footer','TTPRW_show_testONOFF');function TTPRW_show_testONOFF(){
-	if ($GLOBALS['previewMODEE']!=false) {
+	if (!empty($GLOBALS['previewMODEE'])) {
 		echo '<select class="testingCHOOSER" onchange="OnOffTest(this)"
 		style="display:block; z-index:9999; position:fixed;top:30px;width:200px; height:40px;left:1px; padding:4px;color:white; background-color: #C00;border: 5px solid green;" >';
 		
@@ -118,7 +114,7 @@ add_action('wp_footer','TTPRW_show_testONOFF');function TTPRW_show_testONOFF(){
 						}
 					}
 				}else {echo '<option value="x">NO ADDITIONAL THEMES INSTALLED</option>';}
-				echo '<option value="complete_off">--EXIT PREVIEW MODE--</option>';
+				echo '<option value="">--EXIT PREVIEW MODE--</option>';
 				
 		echo '</select>
 		<script type="text/javascript">function OnOffTest(elm){window.location="'.home_url().'/?turnTestOffOn=" + elm.value;}</script>';
