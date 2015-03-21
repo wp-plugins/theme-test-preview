@@ -24,6 +24,7 @@ After activation, Settings>Test themes. IN CASE OF PROBLEMS, JUST REMOVE the plu
 
 == Screenshots ==
 
+1. screenshot-1.png 
 
 == Frequently Asked Questions ==
 Nothing
