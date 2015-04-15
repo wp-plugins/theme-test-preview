@@ -1,20 +1,15 @@
 <?php
 /*
 Plugin Name: Theme Test preview
-Description: Temporarily Preview/Switch your site to different theme (While visitors still see the default theme). After activation, click SETTINGS>Test themes!!! (OTHER MUST-HAVE PLUGINS : http://codesphpjs.blogspot.com/2014/10/must-have-wordpress-plugins.html ) IF PROBLEMS, just REMOVE the plugin.
+Description: Temporarily Preview/Switch your site to different theme (While visitors still see the default theme). After activation, click SETTINGS>Test themes!!!  IF PROBLEMS, just REMOVE the plugin. (P.S.  OTHER MUST-HAVE PLUGINS FOR EVERYONE: http://bitly.com/MWPLUGINS  )
 contributors: selnomeria
 Version: 1.2
 */ //FREE LICENCE. Many thanks to "Theme Test Drive" plugin.
 
-
 define('TTPRW_ACTIVE_THEMFOLD',esc_attr(wp_get_theme()->template));	//get_stylesheet()
 define('TTPRW_ACTIVE_THEMNAME',esc_attr(wp_get_theme()->name));		//wp_get_theme()->template
-
-
-
 register_deactivation_hook(__FILE__,'TTPRW_activatt');	function TTPRW_activatt()	{}
 register_activation_hook(__FILE__,  'TTPRW_deactivatt');function TTPRW_deactivatt()	{setcookie('tPREW_t','delet',time()-9999999,'/');}
-	
 	
 	function TTPRW_detectionn(){
 		if (substr($_SERVER['REQUEST_URI'],-9)=='/testmode')	{header("location: ".home_url().'/?turnTestOffOn='.TTPRW_ACTIVE_THEMFOLD) or die(__FILE__);} 
@@ -27,9 +22,8 @@ register_activation_hook(__FILE__,  'TTPRW_deactivatt');function TTPRW_deactivat
 	
 
 add_action('plugins_loaded','TTPRW_change_func');function TTPRW_change_func(){
-	if (TTPRW_permisionn()){
-		//DETECT situation
-		if 	(isset($_GET['turnTestOffOn'])) {				//change was detected
+	if (TTPRW_permisionn()){	//DETECT situation
+		if 	(isset($_GET['turnTestOffOn'])) {		//change was detected
 			$GLOBALS['previewMODEE']=$_GET['turnTestOffOn'];
 			setcookie('tPREW_t',$_GET['turnTestOffOn'],	time()+9999999,'/');
 			header("location: ".home_url()) or die(__FILE__);
