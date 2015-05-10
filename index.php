@@ -5,12 +5,18 @@ Description: Temporarily Preview/Switch your site to different theme (While visi
 contributors: selnomeria
 Version: 1.2
 */ //FREE LICENCE. Many thanks to "Theme Test Drive" plugin.
+if ( ! defined( 'ABSPATH' ) ) exit; //Exit if accessed directly
+
 
 define('TTPRW_ACTIVE_THEMFOLD',esc_attr(wp_get_theme()->template));	//get_stylesheet()
 define('TTPRW_ACTIVE_THEMNAME',esc_attr(wp_get_theme()->name));		//wp_get_theme()->template
 register_deactivation_hook(__FILE__,'TTPRW_activatt');	function TTPRW_activatt()	{}
 register_activation_hook(__FILE__,  'TTPRW_deactivatt');function TTPRW_deactivatt()	{setcookie('tPREW_t','delet',time()-9999999,'/');}
-	
+//redirect after activation
+add_action( 'activated_plugin', 'TTPRW_activat_redirect' ); function TTPRW_activat_redirect( $plugin ) { 
+    if( $plugin == plugin_basename( __FILE__ ) ) {  exit(wp_redirect( admin_url( 'admin.php?page=theme-test-preview')) );  }
+}	
+
 	function TTPRW_detectionn(){
 		if (substr($_SERVER['REQUEST_URI'],-9)=='/testmode')	{header("location: ".home_url().'/?turnTestOffOn='.TTPRW_ACTIVE_THEMFOLD) or die(__FILE__);} 
 	} TTPRW_detectionn(); //add_action('plugins_loaded','TTPRW_detectionn');     <-- this doesnt work.. i dont know why..
