@@ -9,7 +9,10 @@ Stable tag: 1.2
 Temporary/securely Preview your site with different(Test) themes. After activation, enter "Settings>Theme Test".
 
 == Description ==
-After activation, Settings>Test themes. IN CASE OF PROBLEMS, JUST REMOVE the plugin. (P.S.  OTHER MUST-HAVE PLUGINS FOR EVERYONE: http://bitly.com/MWPLUGINS  )
+After activation, Settings>Test themes. IN CASE OF PROBLEMS, JUST REMOVE the plugin.
+
+
+`(P.S. Note! This is a <a href="http://codesphpjs.blogspot.com/2014/10/nsp-non-slowing-plugins-for-wordpress.html" target="_blank">Non-Slowing</a> Plugin.  See OTHER MUST-HAVE PLUGINS FOR EVERYONE: http://bitly.com/MWPLUGINS  )`
 
 
 
